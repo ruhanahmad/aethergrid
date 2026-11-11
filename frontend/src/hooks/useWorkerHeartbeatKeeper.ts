@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { heartbeatWorker, listWorkers } from "../api/workers";
 import { fetchNodes } from "../api/dashboard";
 import { heartbeatNode } from "../api/nodes";
+import { isLabHeartbeatPaused } from "../lib/recoveryLab";
 
 const HEARTBEAT_INTERVAL_MS = 20_000;
 
@@ -46,13 +47,13 @@ export function useWorkerHeartbeatKeeper(): void {
         ]);
 
         const aliveNodes = nodesResponse.nodes.filter(
-          (node) => node.is_alive,
+          (node) => node.is_alive && !isLabHeartbeatPaused("node", node.id),
         );
 
         await Promise.all([
-          ...workersResponse.workers.map((worker) =>
-            heartbeatWorker(worker.id),
-          ),
+          ...workersResponse.workers
+            .filter((worker) => !isLabHeartbeatPaused("worker", worker.id))
+            .map((worker) => heartbeatWorker(worker.id)),
           ...aliveNodes.map((node) => heartbeatNode(node.id)),
         ]);
       } catch {

@@ -9,10 +9,12 @@ function linkClassName({ isActive }: { isActive: boolean }): string {
     : `${LINK_BASE} text-slate-400 hover:bg-slate-800/50 hover:text-slate-200`;
 }
 
-export function Sidebar() {
+export function Sidebar({ stackNavigationOnMobile = false }: { stackNavigationOnMobile?: boolean }) {
   return (
-    <aside className="w-64 border-r border-slate-800 bg-slate-900 p-6">
-      <nav className="space-y-1">
+    <aside className={stackNavigationOnMobile
+      ? "border-b border-slate-800 bg-slate-900 p-3 md:w-64 md:shrink-0 md:border-b-0 md:border-r md:p-6"
+      : "w-64 border-r border-slate-800 bg-slate-900 p-6"}>
+      <nav className={stackNavigationOnMobile ? "flex flex-wrap gap-1 md:block md:space-y-1" : "space-y-1"}>
         <NavLink to="/" end className={linkClassName}>
           Dashboard
         </NavLink>
@@ -27,6 +29,10 @@ export function Sidebar() {
 
         <NavLink to="/workers" className={linkClassName}>
           Workers
+        </NavLink>
+
+        <NavLink to="/recovery-lab" className={linkClassName}>
+          Recovery Lab
         </NavLink>
       </nav>
     </aside>

@@ -2,6 +2,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
 
 import { useWorkerHeartbeatKeeper } from "./useWorkerHeartbeatKeeper";
+import { setLabHeartbeatPaused } from "../lib/recoveryLab";
 
 const heartbeatWorkerMock = vi.fn();
 const heartbeatNodeMock = vi.fn();
@@ -28,6 +29,40 @@ describe("useWorkerHeartbeatKeeper", () => {
     heartbeatNodeMock.mockReset();
     heartbeatWorkerMock.mockResolvedValue(undefined);
     heartbeatNodeMock.mockResolvedValue(undefined);
+  });
+
+  it("skips paused lab resources while keeping unrelated resources alive", async () => {
+    const node = {
+      cpu_cores: 2, memory_mib: 2048, vram_mib: 0,
+      available_cpu_cores: 2, available_memory_mib: 2048, available_vram_mib: 0,
+      is_alive: true, is_draining: false,
+    };
+    const worker = {
+      status: "IDLE" as const,
+      running_job_id: null,
+      last_seen_at: new Date().toISOString(),
+    };
+    vi.mocked(fetchNodes).mockResolvedValue({
+      nodes: [{ ...node, id: "lab-node" }, { ...node, id: "regular-node" }],
+    });
+    vi.mocked(listWorkers).mockResolvedValue({
+      workers: [
+        { ...worker, id: "lab-worker", node_id: "lab-node" },
+        { ...worker, id: "regular-worker", node_id: "regular-node" },
+      ],
+    });
+    setLabHeartbeatPaused("node", "lab-node", true);
+    setLabHeartbeatPaused("worker", "lab-worker", true);
+    try {
+      renderHook(() => useWorkerHeartbeatKeeper());
+      await waitFor(() => {
+        expect(heartbeatNodeMock).toHaveBeenCalledExactlyOnceWith("regular-node");
+        expect(heartbeatWorkerMock).toHaveBeenCalledExactlyOnceWith("regular-worker");
+      });
+    } finally {
+      setLabHeartbeatPaused("node", "lab-node", false);
+      setLabHeartbeatPaused("worker", "lab-worker", false);
+    }
   });
 
   it("heartbeats an OFFLINE worker, not just live ones (regression test for the incident ADR 0041/0042 fixed)", async () => {

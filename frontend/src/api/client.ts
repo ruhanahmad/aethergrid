@@ -4,10 +4,19 @@ const API_BASE =
   import.meta.env.VITE_API_URL ??
   "http://localhost:8000";
 
-export async function api<T>(
+export class ApiError extends Error {
+  readonly status: number;
+
+  constructor(status: number) {
+    super(`API Error ${status}`);
+    this.status = status;
+  }
+}
+
+export async function apiWithStatus<T>(
   path: string,
   init?: RequestInit,
-): Promise<T> {
+): Promise<{ status: number; data: T }> {
   const response = await fetch(
     `${API_BASE}${path}`,
     {
@@ -26,12 +35,14 @@ export async function api<T>(
       // instead of leaving the user stranded on a bare error screen.
       setApiKey(null);
     }
-    throw new Error(
-      `API Error ${response.status}`,
-    );
+    throw new ApiError(response.status);
   }
   if (response.status === 204) {
-    return undefined as T;
+    return { status: response.status, data: undefined as T };
   }
-  return response.json();
+  return { status: response.status, data: await response.json() };
+}
+
+export async function api<T>(path: string, init?: RequestInit): Promise<T> {
+  return (await apiWithStatus<T>(path, init)).data;
 }

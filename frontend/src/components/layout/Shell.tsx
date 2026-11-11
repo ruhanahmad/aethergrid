@@ -7,10 +7,12 @@ import { useCommandPalette } from "../../hooks/useCommandPalette";
 
 interface ShellProps {
   children: ReactNode;
+  stackNavigationOnMobile?: boolean;
 }
 
 export function Shell({
   children,
+  stackNavigationOnMobile = false,
 }: ShellProps) {
   const { isOpen, close } = useCommandPalette();
 
@@ -19,11 +21,11 @@ export function Shell({
 
       <Header />
 
-      <div className="flex">
+      <div className={stackNavigationOnMobile ? "flex flex-col md:flex-row" : "flex"}>
 
-        <Sidebar />
+        <Sidebar stackNavigationOnMobile={stackNavigationOnMobile} />
 
-        <main className="flex-1 p-8">
+        <main className={stackNavigationOnMobile ? "min-w-0 flex-1 p-4 md:p-8" : "flex-1 p-8"}>
           {children}
         </main>
 

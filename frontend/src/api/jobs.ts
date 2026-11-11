@@ -15,7 +15,7 @@ export type CreateJobRequest = {
 export function createJob(
   job: CreateJobRequest,
 ) {
-  return api(
+  return api<{ id: string; status: JobSummaryResponse["status"] }>(
     "/jobs",
     {
       method: "POST",
