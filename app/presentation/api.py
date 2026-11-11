@@ -20,6 +20,7 @@ from app.presentation.dependencies import (
     check_database_schema,
     get_cluster_tick_service,
     get_connection_pool,
+    get_demo_controller,
     get_reconciliation_loop,
     get_request_logging_service,
     get_scheduler_leadership,
@@ -33,6 +34,7 @@ from app.presentation.routers.api_keys import (
 from app.presentation.routers.cluster import (
     router as cluster_router,
 )
+from app.presentation.routers.demo import router as demo_router
 from app.presentation.routers.events import (
     router as events_router,
 )
@@ -263,6 +265,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         await task
     except asyncio.CancelledError:
         pass
+    get_demo_controller().stop()
 
 
 def _docs_enabled() -> bool:
@@ -323,6 +326,7 @@ app.include_router(
 app.include_router(
     api_keys_router,
 )
+app.include_router(demo_router)
 
 @app.get("/")
 def root() -> dict[str, str]:

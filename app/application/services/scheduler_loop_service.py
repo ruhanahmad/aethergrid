@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Collection
+
 from app.application.services.assign_worker_service import (
     AssignWorkerService,
 )
@@ -17,6 +19,7 @@ from app.domain.repositories.node_repository import (
     NodeRepository,
 )
 from app.domain.services.scheduler import Scheduler
+from app.domain.value_objects.node_id import NodeId
 
 
 class SchedulerLoopService:
@@ -41,11 +44,15 @@ class SchedulerLoopService:
 
     def execute(
         self,
+        excluded_nodes: Collection[NodeId] = (),
     ) -> None:
         """
         Schedule queued jobs in priority order.
         """
-        nodes = self._node_repository.list_available_across_tenants()
+        nodes = [
+            node for node in self._node_repository.list_available_across_tenants()
+            if node.id not in excluded_nodes
+        ]
 
         queued_jobs = sorted(
             (

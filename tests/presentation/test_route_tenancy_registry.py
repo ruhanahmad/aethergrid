@@ -55,6 +55,7 @@ _W_RENEW = "test_worker_renew_route_tenant_isolation_api.py"
 _W_START = "test_worker_start_route_tenant_isolation_api.py"
 _W_OUTCOME = "test_worker_outcome_routes_tenant_isolation_api.py"
 _W_BEAT = "test_worker_heartbeat_route_tenant_isolation_api.py"
+_DEMO = "test_demo_api.py"
 _PROBE = "Probe named exempt by ADR 0064 point 10. Returns a status, no tenant data."
 
 REGISTRY: dict[Route, Entry] = {
@@ -70,6 +71,11 @@ REGISTRY: dict[Route, Entry] = {
     ("GET", "/cluster/health"): _scoped(_NODES),
     ("GET", "/cluster/utilization"): _scoped(_NODES),
     ("GET", "/events"): _scoped(_EVENTS),
+    ("GET", "/demo/sessions"): _scoped(_DEMO),
+    ("POST", "/demo/sessions"): _scoped(_DEMO),
+    ("GET", "/demo/sessions/{session_id}"): _scoped(_DEMO),
+    ("POST", "/demo/sessions/{session_id}/report"): _scoped(_DEMO),
+    ("POST", "/demo/sessions/{session_id}/{action}"): _scoped(_DEMO),
     ("GET", "/jobs"): _scoped(_JOBS),
     ("POST", "/jobs"): _scoped(_JOBS),
     ("GET", "/jobs/queued"): _scoped(_JOBS),

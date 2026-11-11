@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 
 from app.application.services.scheduler_loop_service import (
     SchedulerLoopService,
@@ -12,6 +13,7 @@ from app.domain.enums.worker_management import WorkerManagement
 from app.domain.repositories.worker_repository import (
     WorkerRepository,
 )
+from app.domain.value_objects.node_id import NodeId
 
 logger = logging.getLogger(__name__)
 
@@ -37,10 +39,12 @@ class ClusterTickService:
         scheduler_loop_service: SchedulerLoopService,
         worker_execution_loop: WorkerExecutionLoop,
         worker_repository: WorkerRepository,
+        prepare_demo: Callable[[], set[NodeId]] | None = None,
     ) -> None:
         self._scheduler_loop_service = scheduler_loop_service
         self._worker_execution_loop = worker_execution_loop
         self._worker_repository = worker_repository
+        self._prepare_demo = prepare_demo
 
     def execute(self) -> None:
         """
@@ -52,7 +56,10 @@ class ClusterTickService:
         worker's execution is isolated and logged rather than
         allowed to propagate.
         """
-        self._scheduler_loop_service.execute()
+        if self._prepare_demo is None:
+            self._scheduler_loop_service.execute()
+        else:
+            self._scheduler_loop_service.execute(self._prepare_demo())
 
         for worker in self._worker_repository.list_across_tenants():
             if worker.running_job is None:

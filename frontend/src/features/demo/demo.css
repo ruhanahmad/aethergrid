@@ -1,0 +1,14 @@
+.demo-flow-indicator {
+  transform: translateX(100%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .demo-flow-indicator {
+    animation: demo-flow 1.3s ease-out 2;
+  }
+
+  @keyframes demo-flow {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(300%); }
+  }
+}

@@ -6,10 +6,12 @@ const API_BASE =
 
 export class ApiError extends Error {
   readonly status: number;
+  readonly detail?: string;
 
-  constructor(status: number) {
+  constructor(status: number, detail?: string) {
     super(`API Error ${status}`);
     this.status = status;
+    this.detail = detail;
   }
 }
 
@@ -35,7 +37,8 @@ export async function apiWithStatus<T>(
       // instead of leaving the user stranded on a bare error screen.
       setApiKey(null);
     }
-    throw new ApiError(response.status);
+    const body: { detail?: unknown } | null = await response.json().catch(() => null);
+    throw new ApiError(response.status, typeof body?.detail === "string" ? body.detail : undefined);
   }
   if (response.status === 204) {
     return { status: response.status, data: undefined as T };

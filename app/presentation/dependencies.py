@@ -52,6 +52,8 @@ from app.application.services.create_node_service import (
 from app.application.services.create_worker_service import (
     CreateWorkerService,
 )
+from app.application.services.demo_controller import DemoController
+from app.application.services.demo_store import InMemoryDemoStore
 from app.application.services.drain_node_service import (
     DrainNodeService,
 )
@@ -208,6 +210,7 @@ from app.infrastructure.repositories.in_memory_worker_repository import (
 from app.infrastructure.repositories.postgres_api_key_repository import (
     PostgresApiKeyRepository,
 )
+from app.infrastructure.repositories.postgres_demo_store import PostgresDemoStore
 from app.infrastructure.repositories.postgres_event_repository import (
     PostgresEventRepository,
 )
@@ -436,6 +439,22 @@ _report_job_outcome_service = ReportJobOutcomeService(
     record_job_events_service=_record_job_events_service,
 )
 
+_demo_controller = DemoController(
+    PostgresDemoStore(_connection_pool)
+    if _connection_pool is not None
+    else InMemoryDemoStore(_tenant_repository),
+    _node_repository,
+    _worker_repository,
+    _job_repository,
+    _lease_repository,
+    _event_repository,
+    _report_job_outcome_service,
+)
+
+
+def get_demo_controller() -> DemoController:
+    return _demo_controller
+
 
 _assign_worker_service = AssignWorkerService(
     worker_repository=_worker_repository,
@@ -477,6 +496,7 @@ _cluster_tick_service = ClusterTickService(
     scheduler_loop_service=_scheduler_loop_service,
     worker_execution_loop=_worker_execution_loop,
     worker_repository=_worker_repository,
+    prepare_demo=_demo_controller.tick,
 )
 _mark_dead_workers_service = MarkDeadWorkersService(
     worker_repository=_worker_repository,

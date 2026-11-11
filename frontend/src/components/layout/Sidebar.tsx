@@ -31,8 +31,8 @@ export function Sidebar({ stackNavigationOnMobile = false }: { stackNavigationOn
           Workers
         </NavLink>
 
-        <NavLink to="/recovery-lab" className={linkClassName}>
-          Recovery Lab
+        <NavLink to="/demo" className={linkClassName}>
+          Demo
         </NavLink>
       </nav>
     </aside>

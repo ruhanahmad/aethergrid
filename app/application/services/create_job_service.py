@@ -46,6 +46,8 @@ class CreateJobService:
         resources: ResourceRequirements,
         tenant_id: TenantId,
         command: list[str] | None = None,
+        *,
+        max_retries: int = 0,
     ) -> Job:
         """
         Create a QUEUED job that belongs to tenant_id for its whole
@@ -57,6 +59,7 @@ class CreateJobService:
             resources=resources,
             tenant_id=tenant_id,
             command=command,
+            max_retries=max_retries,
         )
 
         job.queue()

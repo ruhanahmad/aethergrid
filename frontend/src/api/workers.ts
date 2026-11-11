@@ -1,4 +1,4 @@
-import { api, apiWithStatus } from "./client";
+import { api } from "./client";
 import type {
   CreateWorkerRequest,
   CreateWorkerResponse,
@@ -24,12 +24,5 @@ export function createWorker(worker: CreateWorkerRequest) {
 export function heartbeatWorker(workerId: string) {
   return api<CreateWorkerResponse>(`/workers/${workerId}/heartbeat`, {
     method: "POST",
-  });
-}
-
-export function renewWorkerLease(workerId: string, leaseId: string) {
-  return apiWithStatus<GetWorkerResponse>(`/workers/${workerId}/lease/renew`, {
-    method: "POST",
-    body: JSON.stringify({ lease_id: leaseId }),
   });
 }

@@ -22,6 +22,7 @@ class RecordJobEventsService:
         self,
         job: Job,
         event_type: str,
+        payload: dict[str, str] | None = None,
     ) -> Event:
         """
         Record an event about a job. The tenant is read from the job,
@@ -34,6 +35,7 @@ class RecordJobEventsService:
             aggregate_id=str(job.id),
             event_type=event_type,
             tenant_id=job.tenant_id,
+            payload=payload if payload is not None else {},
         )
 
         self._event_repository.save(

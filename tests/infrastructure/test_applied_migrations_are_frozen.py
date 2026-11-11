@@ -35,6 +35,9 @@ EXPECTED_CHECKSUMS = {
     "0005_require_a_tenant_on_workers_and_leases.sql": (
         "053c39106e8ad00d5beebcf39adeed1ab1fc449eed3929070bcf5d4c1b4d3ef8"
     ),
+    "0006_add_demo_sessions.sql": (
+        "e618a848e2d8bb7db8f9125d646775ecf6251ad0064b84554d7e2de0117ad85f"
+    ),
 }
 
 
